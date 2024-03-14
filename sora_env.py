@@ -108,11 +108,11 @@ class Env(gym.Env):
 
         self.action_space = gym.spaces.MultiBinary(4)
 
-        assert render_mode is None or render_mode in self.metadata["render_mode"]
+        assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
-        # self.window = None
-        # self.clock = None
+        self.window = None
+        self.clock = None
 
     def _get_obs(self):
         output = np.zeros((3,) + window_size, dtype=np.uint8)
@@ -423,9 +423,11 @@ class Env(gym.Env):
             mov_plat[4] += chng_plat_x
             mov_plat[5] += chng_plat_x
 
-        self.score = -old_plat_x_list[0]
+        # self.score = -old_plat_x_list[0]
+        score = -self.plat_list[0][0]
+        reward = score + old_plat_x_list[0]
 
-        if 15600 < self.score < 20400:
+        if 15600 < score < 20400:
             self.night = True
         else:
             self.night = False
@@ -438,14 +440,110 @@ class Env(gym.Env):
 
         print(self.plat_list[0])
 
-        return self._get_obs(), self.score, terminated, truncated, None
+        return self._get_obs(), reward, terminated, truncated, None
 
     def render(self):
-        if self.render_mode is None:
-            return
+        if self.render_mode == "human":
+            return self._render_frame()
+
+    def _render_frame(self):
+        if self.window is None:
+            pygame.init()
+            pygame.display.init()
+            self.window = pygame.display.set_mode((window_size[1], window_size[0]))
+        if self.clock is None:
+            self.clock = pygame.time.Clock()
+
+        canvas = pygame.Surface((window_size[1], window_size[0]))
+        if not self.night:
+            canvas.fill(colors["sky_blue"])
+
+        for plat in self.plat_list:
+            plat_x, plat_y, plat_width, plat_height, plat_type = plat
+            if 720 > plat_y > -plat_height:
+                if plat_type == "grass":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["brown"],
+                        pygame.Rect(plat_x, plat_y + 5, plat_width, plat_height - 5),
+                    )
+                    pygame.draw.rect(
+                        canvas,
+                        colors["grass_green"],
+                        pygame.Rect(plat_x, plat_y, plat_width, 5),
+                    )
+                elif plat_type == "fire":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["red"],
+                        pygame.Rect(plat_x, plat_y, plat_width, plat_height),
+                    )
+                elif plat_type == "ice":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["blue"],
+                        pygame.Rect(plat_x, plat_y, plat_width, plat_height),
+                    )
+                elif plat_type == "portal" or plat_type == "endportal":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["black"],
+                        pygame.Rect(
+                            plat_x - 45, plat_y - 50, plat_width + 90, plat_height + 50
+                        ),
+                    )
+
+        for mov_plat in self.mov_plat_list:
+            (
+                plat_x,
+                plat_y,
+                plat_width,
+                plat_height,
+                plat_x1,
+                plat_x2,
+                plat_y1,
+                plat_y2,
+                plat_vel_x,
+                plat_vel_y,
+                plat_type,
+            ) = mov_plat
+            if 720 > plat_y > -plat_height:
+                if plat_type == "grass":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["brown"],
+                        pygame.Rect(plat_x, plat_y + 5, plat_width, plat_height - 5),
+                    )
+                    pygame.draw.rect(
+                        canvas,
+                        colors["grass_green"],
+                        pygame.Rect(plat_x, plat_y, plat_width, 5),
+                    )
+                elif plat_type == "fire":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["red"],
+                        pygame.Rect(plat_x, plat_y, plat_width, plat_height),
+                    )
+                elif plat_type == "ice":
+                    pygame.draw.rect(
+                        canvas,
+                        colors["blue"],
+                        pygame.Rect(plat_x, plat_y, plat_width, plat_height),
+                    )
+
+        pygame.draw.rect(
+            canvas, colors["green"], pygame.Rect(self.x, self.y, width, self.height)
+        )
+
+        self.window.blit(canvas, canvas.get_rect())
+        pygame.event.pump()
+        pygame.display.update()
+
+        self.clock.tick(self.metadata["render_fps"])
 
 
-env = Env()
+env = Env(render_mode="human")
 obs, info = env.reset()
 # obs = np.transpose(obs, (1, 2, 0))
 # image = Image.fromarray(obs, mode="RGB")
@@ -453,8 +551,10 @@ obs, info = env.reset()
 # for i in range(10):
 #     obs, _, _, _, _ = env.step(np.array([0, 0, 0, 1]))
 obs, reward, terminated, truncated, info = env.step(np.array([0, 0, 0, 1]))
+while True:
+    env.render()
 print(reward, terminated, truncated, info)
 
-obs = np.transpose(obs, (1, 2, 0))
-image = Image.fromarray(obs, mode="RGB")
-image.show()
+# obs = np.transpose(obs, (1, 2, 0))
+# image = Image.fromarray(obs, mode="RGB")
+# image.show()
