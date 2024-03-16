@@ -103,7 +103,7 @@ class Env(gym.Env):
 
     def __init__(self, render_mode=None):
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=window_size, dtype=np.float32
+            low=0, high=255, shape=(3,) + window_size, dtype=np.uint8
         )
 
         self.action_space = gym.spaces.MultiBinary(4)
@@ -115,37 +115,37 @@ class Env(gym.Env):
         self.clock = None
 
     def _get_obs(self):
-        output = np.zeros((3,) + window_size, dtype=np.uint8)
-        output[:, :, :] = colors["black" if self.night else "sky_blue"].reshape(3, 1, 1)
+        obs = np.zeros((3,) + window_size, dtype=np.uint8)
+        obs[:, :, :] = colors["black" if self.night else "sky_blue"].reshape(3, 1, 1)
 
         for plat in self.plat_list:
             plat_x, plat_y, plat_width, plat_height, plat_type = plat
             if 1280 > plat_x > -plat_width:
                 if plat_type == "grass":
-                    output[
+                    obs[
                         :,
                         max(0, plat_y + 5) : plat_y + plat_height,
                         max(0, plat_x) : plat_x + plat_width,
                     ] = colors["brown"].reshape(3, 1, 1)
-                    output[
+                    obs[
                         :,
                         max(0, plat_y) : plat_y + 5,
                         max(0, plat_x) : plat_x + plat_width,
                     ] = colors["green"].reshape(3, 1, 1)
                 elif plat_type == "fire":
-                    output[
+                    obs[
                         :,
                         max(0, plat_y) : plat_y + plat_height,
                         max(0, plat_x) : plat_x + plat_width,
                     ] = colors["red"].reshape(3, 1, 1)
                 elif plat_type == "ice":
-                    output[
+                    obs[
                         :,
                         max(0, plat_y) : plat_y + plat_height,
                         max(0, plat_x) : plat_x + plat_width,
                     ] = colors["blue"].reshape(3, 1, 1)
                 elif plat_type == "portal":
-                    output[
+                    obs[
                         :,
                         max(0, plat_y - 45) : plat_y + plat_height + 45,
                         max(0, plat_x - 45) : plat_x + plat_width + 45,
@@ -156,30 +156,33 @@ class Env(gym.Env):
             plat_type = mov_plat[-1]
             if 1280 > plat_x > -plat_width:
                 if plat_type == "grass":
-                    output[
+                    obs[
                         :,
                         plat_y + 5 : plat_y + plat_height,
                         plat_x : plat_x + plat_width,
                     ] = colors["brown"].reshape(3, 1, 1)
-                    output[
+                    obs[
                         :,
                         plat_y : plat_y + 5,
                         plat_x : plat_x + plat_width,
                     ] = colors["grass_green"].reshape(3, 1, 1)
                 elif plat_type == "fire":
-                    output[
+                    obs[
                         :,
                         plat_y : plat_y + plat_height,
                         plat_x : plat_x + plat_width,
                     ] = colors["red"].reshape(3, 1, 1)
 
-        output[:, self.y : self.y + self.height, self.x : self.x + width] = colors[
+        obs[:, self.y : self.y + self.height, self.x : self.x + width] = colors[
             "green"
         ].reshape(3, 1, 1)
 
-        return output
+        obs = np.transpose(obs, (1, 2, 0))
+        image = Image.fromarray(obs, mode="RGB")
 
-    def reset(self):
+        return image
+
+    def reset(self, seed=None, options=None):
         super().reset()
 
         self.height = 120
@@ -438,8 +441,6 @@ class Env(gym.Env):
         self.frame_counter += 1
         self.real_frame_counter += 1
 
-        print(self.plat_list[0])
-
         return self._get_obs(), reward, terminated, truncated, None
 
     def render(self):
@@ -543,18 +544,19 @@ class Env(gym.Env):
         self.clock.tick(self.metadata["render_fps"])
 
 
-env = Env(render_mode="human")
-obs, info = env.reset()
-# obs = np.transpose(obs, (1, 2, 0))
-# image = Image.fromarray(obs, mode="RGB")
-# image.show()
-# for i in range(10):
-#     obs, _, _, _, _ = env.step(np.array([0, 0, 0, 1]))
-obs, reward, terminated, truncated, info = env.step(np.array([0, 0, 0, 1]))
-while True:
-    env.render()
-print(reward, terminated, truncated, info)
+if __name__ == "__main__":
+    env = Env(render_mode="human")
+    obs, info = env.reset()
+    # obs = np.transpose(obs, (1, 2, 0))
+    # image = Image.fromarray(obs, mode="RGB")
+    # image.show()
+    # for i in range(10):
+    #     obs, _, _, _, _ = env.step(np.array([0, 0, 0, 1]))
+    obs, reward, terminated, truncated, info = env.step(np.array([0, 0, 0, 1]))
+    while True:
+        env.render()
+    print(reward, terminated, truncated, info)
 
-# obs = np.transpose(obs, (1, 2, 0))
-# image = Image.fromarray(obs, mode="RGB")
-# image.show()
+    # obs = np.transpose(obs, (1, 2, 0))
+    # image = Image.fromarray(obs, mode="RGB")
+    # image.show()
