@@ -103,7 +103,7 @@ class Env(gym.Env):
 
     def __init__(self, render_mode=None):
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(3,) + window_size, dtype=np.uint8
+            low=0, high=255, shape=window_size + (3,), dtype=np.uint8
         )
 
         self.action_space = gym.spaces.MultiBinary(4)
@@ -177,7 +177,9 @@ class Env(gym.Env):
             "green"
         ].reshape(3, 1, 1)
 
+        # 3, 720, 1280
         obs = np.transpose(obs, (1, 2, 0))
+        # 720, 1280, 3
         image = Image.fromarray(obs, mode="RGB")
 
         return image
