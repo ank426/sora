@@ -2,8 +2,8 @@ import datetime
 from pathlib import Path
 
 import gymnasium as gym
-
 import numpy as np
+import pygame
 import torch
 import torch.nn as nn
 import torchvision.transforms as T
@@ -64,15 +64,20 @@ class ResizeObservation(gym.ObservationWrapper):
         return transforms(observation).squeeze(0)
 
 
-env = Env()
+env = Env(render_mode="human")
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env)
 env = ResizeObservation(env, shape=(72, 128))
 env = gym.wrappers.FrameStack(env, num_stack=4)
 
+assert env.observation_space.shape == (4, 72, 128)
+
 
 class Agent:
     def __init__(self, state_dim, action_dim, save_dir):
+        assert state_dim == (4, 72, 128)
+        assert action_dim == 16
+
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.save_dir = save_dir
@@ -104,20 +109,25 @@ class Agent:
 
     def act(self, state):
         if np.random.rand() < self.exploration_rate:
-            action = env.action_space.sample()
+            action_idx = np.random.randint(self.action_dim)
         else:
-            state = (
-                state[0].__array__() if isinstance(state, tuple) else state.__array__()
-            )
+            state = (state[0] if isinstance(state, tuple) else state).__array__()
+            assert state.shape == (4, 72, 128)
             state = torch.tensor(state, device=self.device).unsqueeze(0)
+            assert state.shape == (1, 4, 72, 128)
             action_values = self.net(state, model="online")
-            action = torch.round(action_values)
+            assert action_values.shape == (1, 16), print(
+                action_values, action_values.shape
+            )
+            action_idx = torch.argmax(action_values, axis=1).item()
+
+        assert 0 <= action_idx < 16
 
         self.exploration_rate *= self.exploration_rate_decay
         self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
 
         self.curr_step += 1
-        return action
+        return action_idx
 
     def cache(self, state, next_state, action, reward, done):
         def first_if_tuple(x):
@@ -128,9 +138,14 @@ class Agent:
 
         state = torch.tensor(state)
         next_state = torch.tensor(next_state)
-        action = torch.tensor([action])
-        reward = torch.tensor([reward])
-        done = torch.tensor([done])
+        assert state.shape == next_state.shape == (4, 72, 128)
+        # action = torch.tensor([action])
+        # reward = torch.tensor([reward])
+        # done = torch.tensor([done])
+        action = torch.tensor(action).unsqueeze(0)
+        reward = torch.tensor(reward).unsqueeze(0)
+        done = torch.tensor(done).unsqueeze(0)
+        assert action.shape == reward.shape == done.shape == (1,)
 
         self.memory.add(
             TensorDict(
@@ -151,19 +166,29 @@ class Agent:
             batch.get(key)
             for key in ("state", "next_state", "action", "reward", "done")
         )
+        assert state.shape == next_state.shape == (self.batch_size, 4, 72, 128)
+        assert action.shape == reward.shape == done.shape == (self.batch_size, 1)
+
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
 
     def td_estimate(self, state, action):
+        # assert state.shape == (self.batch_size, 4, 72, 128)
+        # assert action.shape == (self.batch_size, 4)
+
         current_Q = self.net(state, model="online")[
             np.arange(0, self.batch_size), action
         ]
+
         return current_Q
 
     @torch.no_grad()
     def td_target(self, reward, next_state, done):
+        # assert next_state.shape == (self.batch_size, 4, 72, 128)
+        # assert reward.shape == done.shape == (self.batch_size,)
+
         next_state_Q = self.net(next_state, model="online")
         best_action = torch.argmax(next_state_Q, axis=1)
-        next_Q = self.net(next_state, modoel="target")[
+        next_Q = self.net(next_state, model="target")[
             np.arange(0, self.batch_size), best_action
         ]
         return (reward + (1 - done.float()) * self.gamma * next_Q).float()
@@ -250,17 +275,25 @@ class Net(nn.Module):
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-agent = Agent(state_dim=(4, 72, 128), action_dim=env.action_space.n, save_dir=save_dir)
+agent = Agent(
+    state_dim=(4, 72, 128), action_dim=2**env.action_space.n, save_dir=save_dir
+)
 logger = MetricLogger(save_dir)
 
-episodes = 40
+pygame.init()
+
+episodes = 40_000
 for e in range(episodes):
     state = env.reset()
 
     while True:
-        action = agent.act(state)
+        if e % 20 == 0:
+            env.render()
 
-        next_state, reward, done, trunc, info = env.step(action)
+        action = agent.act(state)
+        bin_action = np.array([int(b) for b in np.binary_repr(action).rjust(4, "0")])
+
+        next_state, reward, done, trunc, info = env.step(bin_action)
 
         agent.cache(state, next_state, action, reward, done)
 
