@@ -94,6 +94,9 @@ class Agent:
 
         self.net = Net(self.state_dim, self.action_dim).float()
         self.net = self.net.to(device=self.device)
+        self.net.load_state_dict(
+            torch.load(rf"checkpoints/2024-07-02T19-55-28/mario_net_13.chkpt")["model"]
+        )
 
         self.burnin = 1e4  # min exps before training
         self.learn_every = 3  # no of exps between updates to Q_online
@@ -105,7 +108,9 @@ class Agent:
         self.batch_size = 32
         self.gamma = 0.9
 
-        self.exploration_rate = 1
+        self.exploration_rate = torch.load(
+            rf"checkpoints/2024-07-02T19-55-28/mario_net_13.chkpt"
+        )["exploration_rate"]
         self.exploration_rate_decay = 0.99999975
         self.exploration_rate_min = 0.1
         self.curr_step = 0
@@ -287,41 +292,28 @@ save_dir.mkdir(parents=True)
 agent = Agent(
     state_dim=(4, 72, 128), action_dim=2**env.action_space.n, save_dir=save_dir
 )
-logger = MetricLogger(save_dir)
 
-# pygame.init()
+pygame.init()
 
+state, info = env.reset()
 
-episodes = 40_000
-for e in range(episodes):
-    state, info = env.reset()
+# i = 0
+# while i < info * 2 + 50:
+while True:
+    env.render()
 
-    i = 0
-    while i < info * 2 + 50:
-        # if e % 1000 == 0:
-        #     env.render()
+    action = agent.act(state)
+    bin_action = np.array([int(b) for b in np.binary_repr(action).rjust(4, "0")])
 
-        action = agent.act(state)
-        bin_action = np.array([int(b) for b in np.binary_repr(action).rjust(4, "0")])
+    next_state, reward, done, trunc, info = env.step(bin_action)
 
-        next_state, reward, done, trunc, info = env.step(bin_action)
+    # agent.cache(state, next_state, action, reward, done)
 
-        agent.cache(state, next_state, action, reward, done)
+    # q, loss = agent.learn()
 
-        q, loss = agent.learn()
+    state = next_state
 
-        logger.log_step(reward, loss, q)
+    if done or trunc:
+        break
 
-        state = next_state
-
-        if done or trunc:
-            break
-
-        i += 1
-
-    logger.log_episode()
-
-    if (e % 20 == 0) or (e == episodes - 1):
-        logger.record(episode=e, epsilon=agent.exploration_rate, step=agent.curr_step)
-
-    print(e, process.memory_info().rss / 1024 / 1024 / 1024)
+    # i += 1
