@@ -7,7 +7,7 @@ from net import Net
 
 
 class Agent:
-    def __init__(self, state_dim, action_dim, save_dir):
+    def __init__(self, state_dim, action_dim, save_dir=None):
         # assert state_dim == (4, 72, 128)
         # assert action_dim == 16
 
