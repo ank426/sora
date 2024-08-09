@@ -1,7 +1,7 @@
 import numpy as np
 import pygame
 
-from sora_env2 import Env
+from sora_env import Env
 
 env = Env(render_mode="human")
 observation, info = env.reset()

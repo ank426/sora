@@ -31,70 +31,33 @@ jump_vel = -30
 
 
 orig_plat_list = [
-    [0, 600, 800, 30, "grass"],
-    [800, 420, 200, 30, "grass"],
-    [1150, 300, 200, 30, "grass"],
-    [1500, 600, 1600, 30, "grass"],
-    [1550, 420, 200, 30, "grass"],
-    [2300, 500, 500, 30, "grass"],
-    [2300, 200, 30, 310, "grass"],
-    [2500, 300, 1100, 30, "grass"],
-    [3800, 600, 700, 30, "grass"],
-    [4000, 400, 300, 30, "grass"],
-    [4000, 200, 280, 30, "grass"],
-    [4480, 150, 30, 300, "grass"],
-    [4450, 150, 300, 30, "grass"],
-    [6000, 600, 1000, 30, "ice"],
-    [5000, 600, 1000, 30, "grass"],
-    [5500, 500, 50, 100, "fire"],
-    [7000, 600, 200, 30, "grass"],
-    [6400, 400, 200, 30, "grass"],
-    [6800, 200, 500, 30, "grass"],
-    [8100, 400, 800, 30, "ice"],
-    [7600, 400, 500, 30, "grass"],
-    [8100, 290, 500, 30, "fire"],
-    [8830, 290, 500, 30, "ice"],
-    [9800, 650, 500, 30, "ice"],
-    [10600, 450, 300, 30, "ice"],
-    [11200, 250, 200, 30, "ice"],
-    [11900, 400, 400, 30, "grass"],
-    [12666, 600, 50, 50, "fire"],
-    [13333, 600, 50, 50, "fire"],
-    [14000, 500, 300, 30, "grass"],
-    [15000, 600, 50, 50, "fire"],
-    [15500, 600, 50, 50, "fire"],
-    [16000, 600, 50, 50, "fire"],
-    [16200, 500, 30, 30, "fire"],
-    [16500, 500, 800, 30, "grass"],
-    [17500, 600, 50, 50, "fire"],
-    [17800, 600, 50, 50, "fire"],
-    [18500, 100, 50, 50, "fire"],
-    [18800, 100, 50, 50, "fire"],
-    [19200, 500, 1000, 30, "grass"],
-    [20400, 350, 300, 30, "ice"],
-    [21500, 600, 2000, 30, "ice"],
-    [21200, 600, 300, 30, "grass"],
-    [23600, 500, 1500, 30, "grass"],
-    [24400, 400, 10, 100, "portal"],
-    [25150, 600, 400, 30, "tramp"],
-    [26000, 500, 400, 30, "acc"],
-    [25600, 500, 400, 30, "grass"],
-    [26500, 600, 2500, 30, "grass"],
-    [29200, 600, 1000, 30, "grass"],
-    [29050, 300, 100, 100, "fall"],
+    [145, 420, 10, 100, "portal"],
+    [0, 520, 1280, 30, "grass"],
+    [500, 350, 240, 30, "grass"],
+    [900, 200, 220, 30, "grass"],
+    [480, 50, 200, 30, "grass"],
+    [100, -100, 180, 30, "grass"],
+    [450, -300, 160, 30, "grass"],
+    [800, -450, 140, 30, "grass"],
+    [1140, -600, 120, 30, "grass"],
+    [1020, -800, 100, 30, "grass"],
+    [800, -950, 80, 30, "grass"],
+    [600, -1100, 60, 30, "grass"],
+    [400, -1250, 40, 30, "grass"],
+    [200, -1400, 20, 30, "grass"],
+    [400, -1550, 880, 30, "grass"],
+    [600, -1750, 20, 30, "grass"],
+    [800, -1900, 20, 30, "grass"],
+    [1000, -2050, 20, 30, "grass"],
+    [1200, -2200, 20, 30, "grass"],
+    [0, -2350, 1000, 30, "grass"],
+    [500, -3150, 10, 100, "endportal"],
 ]
 
 orig_mov_plat_list = [
-    [12300, 500, 300, 30, 12300, 13500, 500, 500, 16, 0, "grass"],
-    [14300, 500, 200, 30, 14300, 15000, 500, 500, 14, 0, "grass"],
-    [15900, 500, 300, 30, 15200, 15900, 500, 500, 14, 0, "grass"],
-    [17400, 300, 300, 30, 17400, 18000, 300, 300, 16, 0, "grass"],
-    [18200, 600, 300, 30, 18200, 18600, 600, 600, 16, 0, "grass"],
-    [19500, 400, 100, 30, 19500, 20200, 400, 400, 16, 0, "fire"],
-    [21700, 550, 100, 30, 21700, 21800, 550, 550, 18, 0, "fire"],
-    [22300, 550, 100, 30, 22300, 22500, 550, 550, 20, 0, "fire"],
-    [22800, 550, 100, 30, 22800, 22900, 550, 550, 18, 0, "fire"],
-    [23050, 550, 100, 30, 23050, 23450, 550, 550, 16, 0, "fire"],
+    [400, -3010, 200, 30, 200, 600, -2710, -2510, 6, 6, "grass"],
+    [700, -3000, 200, 30, 700, 1000, -2910, -2610, 6, 6, "grass"],
+    [315, -3115, 50, 50, 315, 715, -3315, -2915, 8, 8, "fire"],
 ]
 
 
@@ -116,7 +79,7 @@ class Env(gym.Env):
 
     def _get_obs(self):
         obs = np.zeros((3,) + window_size, dtype=np.uint8)
-        obs[:, :, :] = colors["black" if self.night else "sky_blue"].reshape(3, 1, 1)
+        obs[:, :, :] = colors["sky_blue"].reshape(3, 1, 1)
 
         for plat in self.plat_list:
             plat_x, plat_y, plat_width, plat_height, plat_type = plat
@@ -190,15 +153,14 @@ class Env(gym.Env):
         super().reset()
 
         self.height = 120
-        self.x = 600
-        self.y = 600 - self.height
+        self.x = 110
+        self.y = 400
         self.vel_x = 0
         self.vel_y = 0
 
         self.on_ground = True
         self.on_ice = False
         self.half_height = False
-        self.night = False
         self.on_mov_plat_vel_x = 0
 
         self.plat_list = deepcopy(orig_plat_list)
@@ -209,7 +171,7 @@ class Env(gym.Env):
         self.death_counter = 0
         self.real_frame_counter = 0
 
-        return self._get_obs(), None
+        return self._get_obs(), 0
 
     def step(self, action):
         truncated = terminated = False
@@ -225,14 +187,15 @@ class Env(gym.Env):
             self.y += self.height
             self.half_height = True
 
-        old_plat_x_list = []
+        old_plat_y_list = []
         for plat in self.plat_list:
-            old_plat_x_list.append(plat[0])
+            old_plat_y_list.append(plat[1])
 
-        old_mov_plat_x_list = []
+        old_mov_plat_y_list = []
         for mov_plat in self.mov_plat_list:
-            old_mov_plat_x_list.append(mov_plat[0])
+            old_mov_plat_y_list.append(mov_plat[1])
 
+        old_x = self.x
         old_y = self.y
 
         if self.on_ground:
@@ -245,28 +208,17 @@ class Env(gym.Env):
                     self.vel_x = -16
             else:
                 if action[0]:
-                    self.vel_x = -10
+                    self.vel_x = -10 + self.on_mov_plat_vel_x
                 elif action[3]:
-                    self.vel_x = +10
-                elif self.vel_x > 0:
-                    self.vel_x -= 2
-                elif self.vel_x < 0:
-                    self.vel_x += 2
+                    self.vel_x = +10 + self.on_mov_plat_vel_x
+                elif abs(self.vel_x) < 3:
+                    self.vel_x = self.on_mov_plat_vel_x
+                elif self.vel_x > self.on_mov_plat_vel_x:
+                    self.vel_x -= 3
+                elif self.vel_x < self.on_mov_plat_vel_x:
+                    self.vel_x += 3
 
-        if (
-            self.on_mov_plat_vel_x
-            and (self.on_mov_plat_vel_x > 0) == (self.vel_x > 0)
-            and (action[0] or action[3])
-        ):
-            self.vel_x += self.on_mov_plat_vel_x
-        self.on_mov_plat_vel_x = False
-
-        for plat in self.plat_list:
-            plat[0] -= self.vel_x
-        for mov_plat in self.mov_plat_list:
-            mov_plat[0] -= self.vel_x
-            mov_plat[4] -= self.vel_x
-            mov_plat[5] -= self.vel_x
+        self.x += self.vel_x
 
         for mov_plat in self.mov_plat_list:
             if mov_plat[0] <= mov_plat[4]:
@@ -275,19 +227,29 @@ class Env(gym.Env):
                 mov_plat[8] = -abs(mov_plat[8])
             mov_plat[0] += mov_plat[8]
 
+        for mov_plat in self.mov_plat_list:
+            if mov_plat[1] <= mov_plat[6]:
+                mov_plat[9] = abs(mov_plat[9])
+            elif mov_plat[1] >= mov_plat[7]:
+                mov_plat[9] = -abs(mov_plat[9])
+            mov_plat[1] += mov_plat[9]
+
+        if self.x <= 0:
+            self.x = 0
+            self.vel_x = -self.vel_x
+        elif self.x >= 1280 - width:
+            self.x = 1280 - width
+            self.vel_x = -self.vel_x
+
+        self.vel_y += 2
         self.y += self.vel_y
 
-        if self.y >= 720:
-            self.frame_counter = -1
-        else:
-            self.vel_y += 2
-            self.on_ground = False
-
-        chng_plat_x = 0
+        self.on_ground = False
         self.on_ice = False
+        self.on_mov_plat_vel_x = 0
+
         for i in range(len(self.plat_list)):
             plat_x, plat_y, plat_width, plat_height, plat_type = self.plat_list[i]
-            old_plat_x = old_plat_x_list[i]
             if (
                 plat_x - width < self.x < plat_x + plat_width
                 and plat_y - self.height < self.y < plat_y + plat_height
@@ -295,6 +257,8 @@ class Env(gym.Env):
                 if plat_type == "fire":
                     self.frame_counter = -1
                 elif plat_type == "portal":
+                    pass
+                elif plat_type == "endportal":
                     terminated = True
                     break
                 else:
@@ -306,12 +270,12 @@ class Env(gym.Env):
                             self.y = plat_y - self.height
                             self.vel_y = 0
                             self.on_ground = True
-                    elif not old_plat_x - width < self.x < old_plat_x + plat_width:
+                    elif not plat_x - width < old_x < plat_x + plat_width:
                         self.vel_x = -self.vel_x
-                        if self.x > old_plat_x:
-                            chng_plat_x += self.x - plat_width - plat_x
-                        elif self.x < old_plat_x:
-                            chng_plat_x += self.x + width - plat_x
+                        if self.x > old_x:
+                            self.x = plat_x - width
+                        elif self.x < old_x:
+                            self.x = plat_x + plat_width
                     if (
                         old_half_height
                         and not self.half_height
@@ -334,10 +298,9 @@ class Env(gym.Env):
                 _,
                 _,
                 plat_vel_x,
-                _,
+                plat_vel_y,
                 plat_type,
             ) = self.mov_plat_list[i]
-            old_plat_x = old_mov_plat_x_list[i]
             if (
                 plat_x - width < self.x < plat_x + plat_width
                 and plat_y - self.height < self.y < plat_y + plat_height
@@ -345,26 +308,23 @@ class Env(gym.Env):
                 if plat_type == "fire":
                     self.frame_counter = -1
                 else:
-                    if not plat_y - self.height < old_y < plat_y + plat_height:
-                        if self.y < old_y:
+                    old_plat_x = plat_x - plat_vel_x
+                    old_plat_y = plat_y - plat_vel_y
+                    if not old_plat_y - self.height < old_y < old_plat_y + plat_height:
+                        if plat_y - self.y > old_plat_y - old_y:
                             self.y = plat_y + plat_height
                             self.vel_y = -self.vel_y // 2
-                        elif self.y > old_y:
+                        elif plat_y - self.y < old_plat_y - old_y:
                             self.y = plat_y - self.height
-                            self.vel_y = 0
-                            self.vel_x = plat_vel_x
-                            if plat_vel_x > 0:
-                                self.vel_x += 2
-                            elif plat_vel_x < 0:
-                                self.vel_x -= 2
+                            self.vel_y = plat_vel_y
                             self.on_ground = True
                             self.on_mov_plat_vel_x = plat_vel_x
-                    elif not old_plat_x - width < self.x < old_plat_x + plat_width:
+                    elif not old_plat_x - width < old_x < old_plat_x + plat_width:
                         self.vel_x = -self.vel_x
-                        if self.x > old_plat_x:
-                            chng_plat_x += self.x - plat_width - plat_x
-                        elif self.x < old_plat_x:
-                            chng_plat_x += self.x + width - plat_x
+                        if plat_x - self.x < old_plat_x - old_x:
+                            self.x = plat_x - width
+                        elif plat_x - self.x > old_plat_x - old_x:
+                            self.x = plat_x + plat_width
                     if (
                         old_half_height
                         and not self.half_height
@@ -376,76 +336,33 @@ class Env(gym.Env):
                     if plat_type == "ice":
                         self.on_ice = True
 
+        if not self.half_height:
+            for plat in self.plat_list:
+                plat[1] += 400 - self.y
+            for mov_plat in self.mov_plat_list:
+                mov_plat[1] += 400 - self.y
+                mov_plat[6] += 400 - self.y
+                mov_plat[7] += 400 - self.y
+            self.y = 400
+        else:
+            for plat in self.plat_list:
+                plat[1] += 460 - self.y
+            for mov_plat in self.mov_plat_list:
+                mov_plat[1] += 460 - self.y
+                mov_plat[6] += 460 - self.y
+                mov_plat[7] += 460 - self.y
+            self.y = 460
+
         if self.frame_counter == -1:
             truncated = True
 
-        # if self.frame_counter == -1:
-        #     self.death_counter += 1
-        #     self.vel_x = 0
-        #     self.vel_y = 0
-        #     self.plat_list = deepcopy(orig_plat_list)
-        #     self.mov_plat_list = deepcopy(orig_mov_plat_list)
-        #     check = old_plat_x_list[0]
-        #     if -1300 < check:
-        #         self.y = 600 - self.height
-        #     elif -3250 < check:
-        #         chng_plat_x = -1300
-        #         self.y = 600 - self.height
-        #     elif -4450 < check:
-        #         chng_plat_x = -3250
-        #         self.y = 600 - self.height
-        #     elif -7050 < check:
-        #         chng_plat_x = -4450
-        #         self.y = 600 - self.height
-        #     elif -11400 < check:
-        #         chng_plat_x = -7050
-        #         self.y = 400 - self.height
-        #     elif -13500 < check:
-        #         chng_plat_x = -11400
-        #         self.y = 400 - self.height
-        #     elif -16000 < check:
-        #         chng_plat_x = -13500
-        #         self.y = 500 - self.height
-        #     elif -18650 < check:
-        #         chng_plat_x = -16000
-        #         self.y = 500 - self.height
-        #     elif -20700 < check:
-        #         chng_plat_x = -18650
-        #         self.y = 500 - self.height
-        #     elif -23400 < check:
-        #         chng_plat_x = -20700
-        #         self.y = 600 - self.height
-        #     elif -28000 < check:
-        #         chng_plat_x = -23400
-        #         self.y = 500 - self.height
-        #     else:
-        #         chng_plat_x = -28000
-        #         self.y = 600 - self.height
-        #     self.checkpoint_counter = self.fps
-
-        for plat in self.plat_list:
-            plat[0] += chng_plat_x
-        for mov_plat in self.mov_plat_list:
-            mov_plat[0] += chng_plat_x
-            mov_plat[4] += chng_plat_x
-            mov_plat[5] += chng_plat_x
-
-        # self.score = -old_plat_x_list[0]
-        score = -self.plat_list[0][0]
-        reward = score + old_plat_x_list[0]
-
-        if 15600 < score < 20400:
-            self.night = True
-        else:
-            self.night = False
-
-        if self.checkpoint_counter:
-            self.checkpoint_counter -= 1
+        score = self.plat_list[0][1] - 370
+        reward = score + old_plat_y_list[0]
 
         self.frame_counter += 1
         self.real_frame_counter += 1
 
-        return self._get_obs(), reward, terminated, truncated, None
+        return self._get_obs(), reward, terminated, truncated, score
 
     def render(self):
         if self.render_mode == "human":
@@ -460,8 +377,7 @@ class Env(gym.Env):
             self.clock = pygame.time.Clock()
 
         canvas = pygame.Surface((window_size[1], window_size[0]))
-        if not self.night:
-            canvas.fill(colors["sky_blue"])
+        canvas.fill(colors["sky_blue"])
 
         for plat in self.plat_list:
             plat_x, plat_y, plat_width, plat_height, plat_type = plat
@@ -510,7 +426,7 @@ class Env(gym.Env):
                 _,
                 _,
                 _,
-                _,
+                plat_type,
             ) = mov_plat
             if 720 > plat_y > -plat_height:
                 if plat_type == "grass":
