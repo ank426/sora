@@ -37,17 +37,28 @@ def latest_model(checkpoint_path, run_dir):
     return latest_model
 
 
-env = Env(render_mode="human")
-env = preprocess(env, skip=4, grayscale=True, shape=(72, 128), num_stack=4)
-
 checkpoint_path = Path("checkpoints")
 run = latest_run(checkpoint_path)
 model = latest_model(checkpoint_path, run)
 load_path = checkpoint_path / run / model
 
-agent = Agent(state_dim=(4, 72, 128), action_dim=2**env.action_space.n)
-
 model_dict = torch.load(load_path, weights_only=False)
+
+hyp_par = model_dict["hyp_par"]
+skip = hyp_par["skip"]
+grayscale = hyp_par["grayscale"]
+shape = hyp_par["shape"]
+num_stack = hyp_par["num_stack"]
+
+env = preprocess(
+    Env(render_mode="human"),
+    skip=skip,
+    grayscale=grayscale,
+    shape=shape,
+    num_stack=num_stack,
+)
+
+agent = Agent(action_dim=2**env.action_space.n, hyp_par=hyp_par, exploration_rate=0)
 agent.net.load_state_dict(model_dict["model"])
 
 pygame.init()

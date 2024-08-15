@@ -36,7 +36,7 @@ width = 80
 height = 120  # even
 half_height = False
 
-level = 1
+level = 2
 
 if level == 1:
     done = False
@@ -819,7 +819,7 @@ if level == 2:
             death_counter += 1
             vel_x = 0
             vel_y = 0
-            # check = plat_list[0][1] - 370
+            # check = plat_list[0][1] - 420
             plat_list = deepcopy(orig_plat_list)
             mov_plat_list = deepcopy(orig_mov_plat_list)
             # if 1000 < check:
@@ -829,7 +829,7 @@ if level == 2:
             # y = 0
             checkpoint_counter = fps
 
-        score = plat_list[0][1] - 370
+        score = plat_list[0][1] - 420
 
         space_line = 20000
         if score >= space_line:

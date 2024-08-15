@@ -356,8 +356,9 @@ class Env(gym.Env):
         if self.frame_counter == -1:
             truncated = True
 
-        score = self.plat_list[0][1] - 370
-        reward = score + old_plat_y_list[0]
+        _ = self.plat_list[0][1]
+        score = _ - 420
+        reward = _ - old_plat_y_list[0]
 
         self.frame_counter += 1
         self.real_frame_counter += 1

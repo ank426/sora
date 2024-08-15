@@ -7,39 +7,56 @@ from net import Net
 
 
 class Agent:
-    def __init__(self, state_dim, action_dim, save_dir=None):
+    def __init__(
+        self,
+        action_dim,
+        hyp_par,
+        exploration_rate,
+        save_every=None,
+        save_dir=None,
+    ):
         # assert state_dim == (4, 72, 128)
         # assert action_dim == 16
 
-        self.state_dim = state_dim
+        self.hyp_par = hyp_par
+
+        # self.skip = skip
+        # self.grayscale = grayscale
+        # self.shape = shape
+        # self.num_stack = num_stack
+
+        self.state_dim = (hyp_par["num_stack"], *hyp_par["shape"])
         self.action_dim = action_dim
         self.save_dir = save_dir
 
         self.device = "cuda"
         self.memory = TensorDictReplayBuffer(
-            storage=LazyMemmapStorage(20000, device=torch.device("cpu"))
+            storage=LazyMemmapStorage(hyp_par["storage"], device=torch.device("cpu"))
         )
 
         self.net = Net(self.state_dim, self.action_dim).float()
         self.net = self.net.to(device=self.device)
 
-        self.burnin = 1e4  # min exps before training
-        self.learn_every = 3  # no of exps between updates to Q_online
-        self.sync_every = 1e4  # no of exps between Q_target & Q_online sync
+        self.burnin = hyp_par["burnin"]  # min exps before training
+        self.learn_every = hyp_par[
+            "learn_every"
+        ]  # no of exps between updates to Q_online
+        self.sync_every = hyp_par[
+            "sync_every"
+        ]  # no of exps between Q_target & Q_online sync
 
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.00025)
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=hyp_par["lr"])
         self.loss_fn = torch.nn.SmoothL1Loss()
 
-        self.batch_size = 32
-        self.gamma = 0.9
+        self.batch_size = hyp_par["batch_size"]
+        self.gamma = hyp_par["gamma"]
 
-        self.exploration_rate = 1
-        self.exploration_rate_decay = 0.99999975
-        self.exploration_rate_min = 0.1
+        self.exploration_rate = exploration_rate
+        self.exploration_rate_decay = hyp_par["exploration_rate_decay"]
+        self.exploration_rate_min = hyp_par["exploration_rate_min"]
         self.curr_step = 0
 
-        # self.save_every = 5e5
-        self.save_every = 1e4
+        self.save_every = save_every
 
     def act(self, state):
         if np.random.rand() < self.exploration_rate:
@@ -145,7 +162,11 @@ class Agent:
             self.save_dir / f"sora_net_{int(self.curr_step // self.save_every)}.chkpt"
         )
         torch.save(
-            dict(model=self.net.state_dict(), exploration_rate=self.exploration_rate),
+            dict(
+                model=self.net.state_dict(),
+                hyp_par=self.hyp_par,
+                exploration_rate=self.exploration_rate,
+            ),
             save_path,
         )
         print(f"SoraNet saved to {save_path} at step {self.curr_step}")
